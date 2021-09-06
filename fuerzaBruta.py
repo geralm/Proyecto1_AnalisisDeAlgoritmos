@@ -1,5 +1,5 @@
 import dominoes
-from copy import deepcopy
+from copy import copy, deepcopy
 import sys
 
 soluciones = []
@@ -81,27 +81,26 @@ def generar_solucion(A, board):
         return False
 
 
-def generateAllBinaryStrings(n, board, i, A):
+def generateAllBinaryStrings(n, i, A,board):
     global soluciones
     if i == n:
-        soluciones += deepcopy([A])
+        if generar_solucion(A,board):
+            soluciones = deepcopy(A)
         return
-
     A[i] = 0
-    generateAllBinaryStrings(n, board, i + 1, A)
+    generateAllBinaryStrings(n, i + 1, A,board)
 
     A[i] = 1
-    generateAllBinaryStrings(n, board, i + 1, A)
+    generateAllBinaryStrings(n, i + 1, A,board)
 
 
 def fuerza_bruta(board):
-    done = False
+    if(board==False):
+        return False
     n_tiles = int(len(board) * (len(board[0])/2))
     sol = [None] * n_tiles
-    generateAllBinaryStrings(n_tiles, board, 0, sol)
-    for item in soluciones:
-        if done:
-            break
-        elif generar_solucion(item, board):
-            done = True
-            return item
+    generateAllBinaryStrings(n_tiles,0,sol,board)
+    return soluciones
+
+board = dominoes.create_puzzle(5)
+print(fuerza_bruta(board))
