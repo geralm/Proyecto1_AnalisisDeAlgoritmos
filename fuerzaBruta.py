@@ -11,7 +11,7 @@ def check_tiles(tiles):
     while(i != len(tiles)):
         j = k
         while(j != len(tiles)):
-            if tiles[i] == tiles[j]:
+            if tiles[i] != 0 and tiles[j] != 0 and tiles[i] == tiles[j]:
                 return False
             else:
                 j += 1
@@ -24,6 +24,7 @@ def generar_solucion(A, board):
     i = 0
     j = 0
     k = 0
+    tiles = []
     mirror = deepcopy(board)
     tiles = []
     complete = False
@@ -68,13 +69,13 @@ def generar_solucion(A, board):
                 continue
 
         if (A[i] == 0 and k+1 > len(board[0])) or (A[i] == 1 and j+1 > len(board)) or j >= len(board):
-            i = len(A)
             complete = False
             break
         else:
             complete = True
 
         i += 1
+
     if complete == True and check_tiles(tiles) == True:
         return True
     else:
@@ -101,6 +102,3 @@ def fuerza_bruta(board):
     sol = [None] * n_tiles
     generateAllBinaryStrings(n_tiles,0,sol,board)
     return soluciones
-
-board = dominoes.create_puzzle(5)
-print(fuerza_bruta(board))
