@@ -92,15 +92,9 @@ def generar_solucion(board):
             else:
                 continue
 
-        if (solucion[i] == 0 and k+1 > len(board[0])) or (solucion[i] == 1 and j+1 > len(board)) or j >= len(board):
-            solucion[i-1] = 1
-            return generar_solucion(board)
-        else:
-            complete = True
-
         i += 1
 
-    if complete == True and check_tiles(tiles) == True:
+    if check_tiles(tiles):
         return True
     else:
         return False
