@@ -34,7 +34,6 @@ def generar_solucion(board):
     k = 0
     tiles = [0] * n_tiles
     mirror = deepcopy(board)
-    mirror_S = deepcopy(solucion)
     complete = False
     while i < len(solucion):
         #en caso de ser 0
@@ -144,7 +143,7 @@ def generar_solucion(board):
         return False
 
 def backtracking(board):
-    global solucion
+    global solucion         
     if(board==False):
         return False
     solucion = [0] * n_tiles
@@ -152,7 +151,7 @@ def backtracking(board):
     return solucion
 
 
-board = dominoes.create_puzzle(4)
+board = dominoes.create_puzzle(6)
 n_tiles = int(len(board) * (len(board[0])/2))
 print(board)
 print(backtracking(board))
