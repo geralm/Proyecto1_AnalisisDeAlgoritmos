@@ -151,7 +151,7 @@ def backtracking(board):
     return solucion
 
 
-board = dominoes.create_puzzle(6)
+board = dominoes.create_puzzle(7)
 n_tiles = int(len(board) * (len(board[0])/2))
 print(board)
 print(backtracking(board))

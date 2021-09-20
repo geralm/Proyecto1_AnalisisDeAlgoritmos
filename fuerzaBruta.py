@@ -78,6 +78,9 @@ def generar_solucion(A, board):
 def generateAllBinaryStrings(n, i, A,board):
     global soluciones
     global found
+
+    if found:
+        return 0
     if i == n:
         if found == False:
             if generar_solucion(A,board):
