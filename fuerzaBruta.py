@@ -102,6 +102,3 @@ def fuerza_bruta(board):
     sol = [None] * n_tiles
     generateAllBinaryStrings(n_tiles,0,sol,board)
     return soluciones
-
-board = dominoes.create_puzzle(6)
-print(fuerza_bruta(board))

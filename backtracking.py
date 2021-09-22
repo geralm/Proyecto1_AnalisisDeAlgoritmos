@@ -27,7 +27,7 @@ def check_tiles(tiles):
         k += 1
     return True
 
-def generar_solucion(board):
+def generar_solucion(board, n_tiles):
     global solucion
     i = 0
     j = 0
@@ -45,20 +45,20 @@ def generar_solucion(board):
                     solucion[i] = 0
                     solucion[repetida] = 0
                     solucion[get_0(i)] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
                 elif solucion[i] == 1 and solucion[repetida] == 0:
                     solucion[repetida] = 1
                     solucion[i] = 0
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
                 elif j+1 < len(board):
                     solucion[i] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
                 elif j+1 >= len(board) and solucion[repetida] == 1:
                     solucion[get_0(i)] = 1 
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
                 else:
                     solucion[repetida] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
 
             mirror[j][k] = "V"
             mirror[j][k+1] = "V"
@@ -71,11 +71,11 @@ def generar_solucion(board):
             if i+1 < len(solucion) and solucion[i+1] == 0 and mirror[j][k] != "V":
                 if k+1 < len(board[0]) and mirror[j][k+1] == "V":
                     solucion[i+1] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
 
                 elif k+1 >= len(board[0]):
                     solucion[i+1] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
                 
 
         #en caso de ser 1                 
@@ -87,20 +87,20 @@ def generar_solucion(board):
                     solucion[i] = 0
                     solucion[repetida] = 0
                     solucion[get_0(i)] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
                 elif solucion[i] == 1 and solucion[repetida] == 0:
                     solucion[repetida] = 1
                     solucion[i] = 0
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
                 elif j+1 < len(board):
                     solucion[i] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
                 elif j+1 > len(board) and solucion[repetida] == 1:
                     solucion[get_0(i)] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
                 else:
                     solucion[repetida] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
 
             mirror[j][k] = "V"
             mirror[j+1][k] = "V"
@@ -113,19 +113,19 @@ def generar_solucion(board):
             if i+1 < len(solucion) and solucion[i+1] == 0:
                 if k+1 < len(board[0]) and mirror[j][k] != "V" and mirror[j][k+1] == "V":
                     solucion[i+1] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
 
                 elif k+1 >= len(board[0]):
                     solucion[i+1] = 1
-                    return generar_solucion(board)
+                    return generar_solucion(board,n_tiles)
 
         elif solucion[i] == 0 and k+1 >= len(board[0]) and mirror[j][k] != "V":
             solucion[i] = 1
-            return generar_solucion(board)
+            return generar_solucion(board,n_tiles)
 
         elif solucion[i] == 1 and j+1 >= len(board):
             solucion[i] = 0
-            return generar_solucion(board)
+            return generar_solucion(board,n_tiles)
         else: 
             k+=1
             if k >= len(board[0]):
@@ -143,15 +143,15 @@ def generar_solucion(board):
         return False
 
 def backtracking(board):
-    global solucion         
+    global solucion    
+    n_tiles = int(len(board) * (len(board[0])/2))
+    
     if(board==False):
         return False
     solucion = [0] * n_tiles
-    generar_solucion(board)
+    generar_solucion(board, n_tiles)
     return solucion
 
 
-board = dominoes.create_puzzle(7)
-n_tiles = int(len(board) * (len(board[0])/2))
-print(board)
-print(backtracking(board))
+
+

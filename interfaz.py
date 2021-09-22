@@ -7,6 +7,7 @@ Fecha: 1/9/2021
 from typing import Collection
 import fuerzaBruta
 import dominoes
+import backtracking
 from tkinter import *
 
 #----------------------------definicion de variables globables----------------------------
@@ -22,6 +23,10 @@ def pintarCuadros(cuadricula, resultados):
     Funcion que resultados y me los acomodará en el cuadro los valores de los resultados
     Input: array de cuadrícula, y array de resultados
     Output: void [1, 1, 1, 1, 1, 1,      0, 0, 0,     1, 1, 0, 1, 1, 0]
+
+    La idea del algoritmo de la interfaz es colocar las fichas hasta que logre encontrar campo 
+    NO con precisión
+
     """
     if resultados == False:
         return False
@@ -70,8 +75,21 @@ def hacerCuadricula(root):
             col.append(recuadro)
         cuadricula.append(col)
     return cuadricula
+def botonFuerzaB():
+    """
+    """
+    global board
+    global solucion
+    board = dominoes.create_puzzle(CANTIDAD_FICHAS)
+    solucion=fuerzaBruta.fuerza_bruta(board)
+    print(solucion)
+    print(len(solucion))
+    mensaje = pintarCuadros(cuadricula, solucion)
+    return 
 #--------------------------------------Código principal---------------------------------------------
 global root
+board = []
+solucion = []
 root = Tk()
 root.title("Análisis de algoritmos-Búsqueda de fuerza bruta y Backtraking")
 x_ventana = root.winfo_screenwidth() // 2 - ANCHOVENTANA // 2
@@ -82,13 +100,6 @@ root.resizable(0,0)
 botonSalir  = Button(root, text = "Salir", command =root.quit, bg = "red", fg="white", font="Arial")
 botonSalir.place(x = ANCHOVENTANA-100, y = ALTOVENTANA-40,  w = 75,h = 30)
 cuadricula= hacerCuadricula(root)
-board = dominoes.create_puzzle(CANTIDAD_FICHAS)
-solucion=fuerzaBruta.fuerza_bruta(board)
-print(solucion)
-mensaje = pintarCuadros(cuadricula, solucion)
-tkBoxMensaje = Entry(root)
-tkBoxMensaje.place(x = 10, y = ALTOVENTANA-50,w= 200, h= 30)
-if mensaje == False or mensaje == []: 
-    tkBoxMensaje.insert(0, " No se pudo pintar los recuadros")
-    tkBoxMensaje.configure(state= 'readonly')
+botonFuerzaBruta = Button(root, text="FB",command=lambda:botonFuerzaB(), bg="Yellow", fg="black")
+botonFuerzaBruta.place(x = ANCHOVENTANA-100, y= ALTOVENTANA-100, w = 75, h= 30)
 root.mainloop()
