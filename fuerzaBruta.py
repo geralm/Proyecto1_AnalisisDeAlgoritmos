@@ -20,13 +20,21 @@ def check_tiles(tiles):
     return True
 
 
+def complete(mirror):
+    i = 0
+    while i < len(mirror):
+        k = 0
+        while k < len(mirror[0]):
+            if mirror[i][k] != "V":
+                return False
+    return True
+
 def generar_solucion(A, board):
     i = 0
     j = 0
     k = 0
     tiles = []
     mirror = deepcopy(board)
-    complete = True
     while i < len(A):
 
         if k+1 < len(board[0]) and A[i] == 0 and mirror[j][k] != "V" and mirror[j][k+1] != "V":
@@ -45,7 +53,6 @@ def generar_solucion(A, board):
             
 
         elif (A[i] == 0 and k+1 >= len(board[0])) or (A[i] == 1 and j+1 >= len(board)) or j >= len(board):
-            complete = False
             break
 
         else:
@@ -54,7 +61,6 @@ def generar_solucion(A, board):
                 k = 0
                 j += 1
                 if j >= len(board):
-                    complete = False
                     break
                 else:
                     continue
@@ -69,7 +75,7 @@ def generar_solucion(A, board):
 
         i += 1
 
-    if complete == True and check_tiles(tiles) == True:
+    if complete(mirror) and check_tiles(tiles) == True:
         return True
     else:
         return False
@@ -102,3 +108,6 @@ def fuerza_bruta(board):
     sol = [None] * n_tiles
     generateAllBinaryStrings(n_tiles,0,sol,board)
     return soluciones
+
+board = dominoes.create_puzzle(4)
+print(fuerza_bruta(board))

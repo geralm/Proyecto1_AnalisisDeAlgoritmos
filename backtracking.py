@@ -13,6 +13,15 @@ def get_0(k):
         k-=1
     return aux
 
+def complete(mirror):
+    i = 0
+    while i < len(mirror):
+        k = 0
+        while k < len(mirror[0]):
+            if mirror[i][k] != "V":
+                return False
+    return True
+
 def check_tiles(tiles):
     i = 0
     k = 1
@@ -34,7 +43,6 @@ def generar_solucion(board, n_tiles):
     k = 0
     tiles = [0] * n_tiles
     mirror = deepcopy(board)
-    complete = False
     while i < len(solucion):
         #en caso de ser 0
         if solucion[i] == 0 and mirror[j][k] != "V" and mirror[j][k+1] != "V":
@@ -137,7 +145,7 @@ def generar_solucion(board, n_tiles):
                 continue
         i += 1
 
-    if check_tiles(tiles):
+    if check_tiles(tiles) and complete(mirror):
         return True
     else:
         return False
