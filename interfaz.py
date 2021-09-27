@@ -4,7 +4,8 @@ Fecha: 1/9/2021
 """
 
 #------------------------------Importacion de librerías------------------------------------
-from typing import Collection
+from os import extsep
+from typing import Collection, Tuple
 import fuerzaBruta
 import dominoes
 import backtracking
@@ -17,7 +18,14 @@ COLUMNAS = CANTIDAD_FICHAS+2
 ANCHOVENTANA =FILAS *100
 ALTOVENTANA =((COLUMNAS//2)*100)+50
 #------------------------------------------definicion de funciones----------------------
-
+def hacerEspejo():
+    mirror=[] #matriz espejo
+    for i in range(COLUMNAS):
+        vacio=[] #fila o columna vacía
+        for j in range(FILAS):
+            vacio.append(True) #agrega el valor siempre True
+        mirror.append(vacio) #agrega
+    return mirror
 def pintarCuadros(cuadricula, resultados):
     """
     Funcion que resultados y me los acomodará en el cuadro los valores de los resultados
@@ -26,39 +34,42 @@ def pintarCuadros(cuadricula, resultados):
 
     La idea del algoritmo de la interfaz es colocar las fichas hasta que logre encontrar campo 
     NO con precisión
-
+    cuadricula[pfilas][pcolumnas].configure(background="SpringGreen2")
+    cuadricula[pfilas][pcolumnas+1].configure(background="sky blue")  
     """
-    if resultados == False:
-        return False
-    pfilas = 0 #posicion de las fichas (Funciona como un índice) en ------>   eje x
-    pcolumnas=0 #posicion de las fichas (Funciona como un índice) en ------> eje y
-    rpasado = 0 #significa el resultado pasado
-    for i in resultados:
-        if pfilas >= COLUMNAS:
-            if rpasado == 1: #esto para que el programa sepa si el último valor fue vertical u horizontal
-                #con el fin de avanzar uno o dos casillas hacia abao
-                pcolumnas+=2 
-            else: 
-                pcolumnas+=1
-            pfilas=0
-        if (pcolumnas+1)>FILAS:
-            return
-        if i == 0: #va horizontal color verde
-            cuadricula[pfilas][pcolumnas].configure(background="SpringGreen2")
-            cuadricula[pfilas+1][pcolumnas].configure(background="SpringGreen2")
-            rpasado=0
-            pfilas+=2   
-        if i == 1 : #van verticales color azul
-            try:
-                cuadricula[pfilas][pcolumnas].configure(background="sky blue")
-                cuadricula[pfilas][pcolumnas+1].configure(background="sky blue")  
-            except:
-                pass
-            rpasado=1
-            pfilas+=1
-        
-     
+    espejo = hacerEspejo() #el espejo es para tener un control cuando puede pintarse un recuadro y cuando no
+ 
+    indiceResultados = 0
+    posfila=0 
+    for i in espejo:
+        posCol = 0
+        for j in i:
+            if j == True: #si es true significa que es una casilla en blanco
+                if resultados[indiceResultados]==0:
+                    try:
+                        if espejo[posfila][posCol] and espejo[posfila+1][posCol]:
+                            cuadricula[posfila][posCol].configure(background="SpringGreen2")
+                            cuadricula[posfila+1][posCol].configure(background="SpringGreen2")
+                            posCol+=2
 
+                            espejo[posfila][posCol] = False
+                            espejo[posfila+1][posCol] = False
+                            indiceResultados+=1 #aumenta para determinar el siguiente resultado
+                        else: 
+                            print("Error al pintar los cuadros verdes ")
+                    except:
+                        break
+                else: 
+                    if espejo[posfila][posCol] and espejo[posfila][posCol+1]:
+                        cuadricula[posfila][posCol].configure(background="sky blue")
+                        cuadricula[posfila][posCol+1].configure(background="sky blue") 
+                        posCol+=1
+                        espejo[posfila][posCol] = False
+                        espejo[posfila][posCol+1] = False
+                        indiceResultados+=1 #aumenta para determinar el siguiente resultado   
+                    else: 
+                        print("Error al pintar los cuadros celestes")
+        posfila+=1
     return True
 def hacerCuadricula(root):
     """
@@ -84,7 +95,7 @@ def botonFuerzaB():
     solucion=fuerzaBruta.fuerza_bruta(board)
     print(solucion)
     print(len(solucion))
-    mensaje = pintarCuadros(cuadricula, solucion)
+    mensaje = pintarCuadros(cuadricula, [0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0])
     return 
 #--------------------------------------Código principal---------------------------------------------
 global root
