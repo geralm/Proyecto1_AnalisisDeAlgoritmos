@@ -27,6 +27,8 @@ def complete(mirror):
         while k < len(mirror[0]):
             if mirror[i][k] != "V":
                 return False
+            k+=1
+        i+=1
     return True
 
 def generar_solucion(A, board):
@@ -109,5 +111,3 @@ def fuerza_bruta(board):
     generateAllBinaryStrings(n_tiles,0,sol,board)
     return soluciones
 
-board = dominoes.create_puzzle(4)
-print(fuerza_bruta(board))
