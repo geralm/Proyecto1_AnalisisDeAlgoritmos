@@ -1,25 +1,68 @@
 import dominoes
-from fuerzaBruta import check_tiles
 from copy import deepcopy
 
 solucion = []
+mirror = []
+tiles = []
+reg = []
+error = False
+j = 0
+k = 0
 
-def get_0(k):
-    aux = k
-    k-=1
-    while k >= 0:
-        if solucion[k] == 0:
-            return k
-        k-=1
-    return aux
-
-def complete(mirror):
-    i = 0
-    while i < len(mirror):
+def check(i,n_tiles):
+    global k
+    global j 
+    if k >= len(board[0]):
         k = 0
-        while k < len(mirror[0]):
-            if mirror[i][k] != "V":
+        j += 1
+        if j >= len(board) and check_tiles(tiles) == "T" and mirror_complete():
+            return True
+        elif j >= len(board):
+            return False
+        elif check_tiles(tiles) == "T" and mirror_complete():
+            return True
+    elif check_tiles(tiles) == "T" and mirror_complete():
+        return True
+
+def reset_tiles():
+    global tiles
+    i = 0
+    while i < len(tiles):
+        tiles[i] = 0
+        i+=1
+
+def poda(repetida,n_tiles):
+    global k 
+    global j
+    global mirror
+    global tiles
+    j = 0
+    k = 0
+    reset_tiles()
+    mirror = deepcopy(board)
+    if reg[repetida] == True:
+        if solucion[repetida-1] == 1:
+            solucion[repetida-1] = 0
+        else:
+            solucion[repetida-1] = 1
+        reg[repetida] = False
+        reg[repetida-1] = True
+    elif solucion[repetida] == 1:
+        solucion[repetida] = 0
+    else:   
+        solucion[repetida] = 1
+    return generar_solucion(board, 0, n_tiles)
+
+
+def mirror_complete():
+    j = 0
+    while j < len(board):
+        k = 0
+        while k < len(board[0]):
+            if mirror[j][k] != "V":
                 return False
+            k+=1
+        j+=1
     return True
 
 def check_tiles(tiles):
@@ -34,132 +77,143 @@ def check_tiles(tiles):
                 j += 1
         i += 1
         k += 1
-    return True
+    return "T"
 
-def generar_solucion(board, n_tiles):
+def generar_solucion(board,i,n_tiles):
     global solucion
-    i = 0
-    j = 0
-    k = 0
-    tiles = [0] * n_tiles
-    mirror = deepcopy(board)
-    while i < len(solucion):
-        #en caso de ser 0
-        if solucion[i] == 0 and mirror[j][k] != "V" and mirror[j][k+1] != "V":
+    global mirror
+    global tiles
+    global j
+    global k
+    if mirror[j][k] != "V" and j+1 >= len(board) and k+1 >= len(board[0]):
+        if solucion[0] == 1:
+            solucion[0] = 0
+        else: 
+            solucion[0] = 1
+        reset_tiles()
+        j = 0
+        k = 0
+        mirror = deepcopy(board)
+        return generar_solucion(board, 0, n_tiles)
+    elif mirror[j][k] != "V" and j+1 >= len(board) and mirror[j][k+1] == "V":
+        if solucion[0] == 1:
+            solucion[0] = 0
+        else:
+            solucion[0] = 1
+        reset_tiles()
+        j = 0
+        k = 0
+        mirror = deepcopy(board)
+        return generar_solucion(board, 0, n_tiles)
+    elif solucion[i] == 0:
+        if k+1 >= len(board[0]) and mirror[j][k] != "V":
+            solucion[i] = 1
+            reg[i] = True
+            return generar_solucion(board, i, n_tiles)
+
+        elif mirror[j][k] != "V" and mirror[j][k+1] == "V" and j+1 <= len(board):
+            solucion[i] = 1
+            return generar_solucion(board, i, n_tiles)
+
+        elif mirror[j][k] != "V" and mirror[j][k+1] != "V":
             tiles[i] = [[board[j][k]]+[board[j][k+1]]]
             repetida = check_tiles(tiles)
-            if repetida != True:
-                if solucion[i] == 1 and solucion[repetida] ==1:
+            if repetida != "T" and j+1 < len(board):
+                
+                tiles[i] = [[board[j][k]]+[board[j+1][k]]]
+                repetida = check_tiles(tiles)
+                if repetida != "T":
+                    mirror[j][k] = "V"
+                    mirror[j][k+1] = "V"
                     solucion[i] = 0
-                    solucion[repetida] = 0
-                    solucion[get_0(i)] = 1
-                    return generar_solucion(board,n_tiles)
-                elif solucion[i] == 1 and solucion[repetida] == 0:
-                    solucion[repetida] = 1
-                    solucion[i] = 0
-                    return generar_solucion(board,n_tiles)
-                elif j+1 < len(board):
-                    solucion[i] = 1
-                    return generar_solucion(board,n_tiles)
-                elif j+1 >= len(board) and solucion[repetida] == 1:
-                    solucion[get_0(i)] = 1 
-                    return generar_solucion(board,n_tiles)
+                    return poda(repetida,n_tiles)
                 else:
-                    solucion[repetida] = 1
-                    return generar_solucion(board,n_tiles)
-
+                    solucion[i] = 1
+                    reg[i] = True
+                    return generar_solucion(board, i, n_tiles)
+            elif repetida != "T" and j+1 >= len(board):
+                mirror[j][k] = "V"
+                mirror[j][k+1] = "V"
+                return poda(repetida, n_tiles)
             mirror[j][k] = "V"
             mirror[j][k+1] = "V"
-            k += 2
+            k+=2
+            if check(i, n_tiles):
+                return True
+            else:
+                return generar_solucion(board, i+1, n_tiles)
 
-            if k >= len(board[0]):
-                k = 0 
-                j+=1
+        else:
+            k+=1
+            if check(i, n_tiles):
+                return True
+            else:
+                return generar_solucion(board, i, n_tiles)
 
-            if i+1 < len(solucion) and solucion[i+1] == 0 and mirror[j][k] != "V":
-                if k+1 < len(board[0]) and mirror[j][k+1] == "V":
-                    solucion[i+1] = 1
-                    return generar_solucion(board,n_tiles)
+    elif solucion[i] == 1:
+        if j+1 >= len(board):
+            solucion[i] = 0
+            reg[i] = True
+            return generar_solucion(board, i, n_tiles)
 
-                elif k+1 >= len(board[0]):
-                    solucion[i+1] = 1
-                    return generar_solucion(board,n_tiles)
-                
-
-        #en caso de ser 1                 
-        elif solucion[i] == 1 and mirror[j][k] != "V" and len(board) > j+1 and mirror[j+1][k] != "V":
+        elif mirror[j][k] != "V" and mirror[j+1][k] != "V":
             tiles[i] = [[board[j][k]]+[board[j+1][k]]]
             repetida = check_tiles(tiles)
-            if repetida != True:
-                if solucion[i] == 1 and solucion[repetida] == 1:
-                    solucion[i] = 0
-                    solucion[repetida] = 0
-                    solucion[get_0(i)] = 1
-                    return generar_solucion(board,n_tiles)
-                elif solucion[i] == 1 and solucion[repetida] == 0:
-                    solucion[repetida] = 1
-                    solucion[i] = 0
-                    return generar_solucion(board,n_tiles)
-                elif j+1 < len(board):
+            if repetida != "T" and k+1 < len(board[0]):
+
+                tiles[i] = [[board[j][k]]+[board[j][k+1]]]
+                repetida = check_tiles(tiles)
+                if repetida != "T":
+                    mirror[j][k] = "V"
+                    mirror[j][k+1] = "V"
                     solucion[i] = 1
-                    return generar_solucion(board,n_tiles)
-                elif j+1 > len(board) and solucion[repetida] == 1:
-                    solucion[get_0(i)] = 1
-                    return generar_solucion(board,n_tiles)
+                    return poda(repetida, n_tiles)
                 else:
-                    solucion[repetida] = 1
-                    return generar_solucion(board,n_tiles)
+                    solucion[i] = 0
+                    reg[i] = True
+                    return generar_solucion(board, i, n_tiles)
+            elif repetida != "T" and k+1 >= len(board[0]):
+                mirror[j][k] = "V"
+                mirror[j+1][k] = "V"
+                return poda(repetida, n_tiles)
 
             mirror[j][k] = "V"
             mirror[j+1][k] = "V"
             k += 1
-
-            if k >= len(board[0]):
-                k = 0
-                j += 1
-
-            if i+1 < len(solucion) and solucion[i+1] == 0:
-                if k+1 < len(board[0]) and mirror[j][k] != "V" and mirror[j][k+1] == "V":
-                    solucion[i+1] = 1
-                    return generar_solucion(board,n_tiles)
-
-                elif k+1 >= len(board[0]):
-                    solucion[i+1] = 1
-                    return generar_solucion(board,n_tiles)
-
-        elif solucion[i] == 0 and k+1 >= len(board[0]) and mirror[j][k] != "V":
-            solucion[i] = 1
-            return generar_solucion(board,n_tiles)
-
-        elif solucion[i] == 1 and j+1 >= len(board):
-            solucion[i] = 0
-            return generar_solucion(board,n_tiles)
-        else: 
-            k+=1
-            if k >= len(board[0]):
-                k = 0
-                j += 1
-            if j > len(board):
-                break
+            if check(i, n_tiles):
+                return True
             else:
-                continue
-        i += 1
-
-    if check_tiles(tiles) and complete(mirror):
-        return True
+                return generar_solucion(board, i+1, n_tiles)
+        else:
+            k += 1
+            if check(i, n_tiles):
+                return True
+            else:
+                return generar_solucion(board, i, n_tiles)
     else:
-        return False
-
+        k += 1
+        if check(i,n_tiles):
+            return True
+        else:
+            return generar_solucion(board, i, n_tiles)
+        
 def backtracking(board):
     global solucion    
+    global tiles
+    global mirror
+    global reg
+
     n_tiles = int(len(board) * (len(board[0])/2))
-    
     if(board==False):
         return False
     solucion = [0] * n_tiles
-    generar_solucion(board, n_tiles)
-    return solucion
+    tiles = [0] * n_tiles
+    reg = [False] * n_tiles
+    mirror = deepcopy(board)
+    if generar_solucion(board,0,n_tiles):
+        return solucion
 
 
-
-
+board = [[2, 0, 0, 2, 2], [3, 0, 1, 0, 2], [1, 1, 3, 3, 2], [3, 3, 0, 1, 1]]
+print(board)
+print(backtracking(board))
