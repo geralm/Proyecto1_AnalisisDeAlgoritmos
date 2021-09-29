@@ -187,7 +187,8 @@ def backtracking(tablero):
     global tiles
     global mirror
     global reg
-    board = tablero
+    global board
+    board = deepcopy(tablero)
     n_tiles = int(len(board) * (len(board[0])/2))
     if(board == False):
         return False

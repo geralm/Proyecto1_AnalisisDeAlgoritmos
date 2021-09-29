@@ -10,11 +10,11 @@ import fuerzaBruta
 import dominoes
 import backtracking
 from tkinter import *
-import random 
+
 
 
 #----------------------------definicion de variables globables----------------------------
-CANTIDAD_FICHAS =7
+CANTIDAD_FICHAS =4
 FILAS = CANTIDAD_FICHAS+1
 COLUMNAS = CANTIDAD_FICHAS+2
 ANCHOVENTANA =FILAS *100 +100
@@ -45,11 +45,6 @@ def pintarCuadros(cuadricula, resultados, tablero):
     Funcion que resultados y me los acomodará en el cuadro los valores de los resultados
     Input: array de cuadrícula, y array de resultados
     Output: void [1, 1, 1, 1, 1, 1,      0, 0, 0,     1, 1, 0, 1, 1, 0]
-
-    La idea del algoritmo de la interfaz es colocar las fichas hasta que logre encontrar campo 
-    NO con precisión
-    cuadricula[pfilas][pcolumnas].configure(background="SpringGreen2")
-    cuadricula[pfilas][pcolumnas+1].configure(background="sky blue")  
     """
     global root
     reset(cuadricula)
@@ -85,11 +80,8 @@ def pintarCuadros(cuadricula, resultados, tablero):
         else:
             cuadricula[i].configure(background="sky blue")
         i+=1
-        root.after(100)
-        root.update()
-
-    
-          
+        root.after(50)
+        root.update()  
     return True
     
 def hacerCuadricula(root):
@@ -110,22 +102,43 @@ def hacerCuadricula(root):
 def botonFuerzaB():
     global board
     global solucion
+    global mensajeEntry
+    mensajeEntry.delete(0,100)
     board = dominoes.create_puzzle(CANTIDAD_FICHAS)
     print(board)
     solucion=fuerzaBruta.fuerza_bruta(board)
     print(solucion)
     
-    mensaje = pintarCuadros(cuadricula, solucion, board)
+    try:
+        mensaje=pintarCuadros(cuadricula, solucion, board)
+    except:
+        mensajeEntry.insert(0,"La cuadricula no pudo resolverse, intente de nuevo")
+   
     return 
 def botonBT():
-    global board
     global solucion
-    board=dominoes.create_puzzle(CANTIDAD_FICHAS)
-    solucion= backtracking.backtracking(board)
-    mensaje=pintarCuadros(cuadricula, solucion)
+    global root
+    global mensajeEntry
+    mensajeEntry.delete(0,100)
+    i=0
+    while True and i<50:
+        try:
+            board=dominoes.create_puzzle(CANTIDAD_FICHAS)
+            solucion= backtracking.backtracking(board)
+            break
+        except:
+            i+=1
+            pass
+    print(board)
+    print(solucion)
+    try:
+        mensaje=pintarCuadros(cuadricula, solucion, board)
+    except:
+        mensajeEntry.insert(0,"La cuadricula no pudo resolverse, intente de nuevo")
     return
 #--------------------------------------Código principal---------------------------------------------
 global root
+global mensajeEntry
 board = []
 solucion = []
 root = Tk()
@@ -151,4 +164,7 @@ botonFuerzaBruta.place(x = 3*50, y= ALTOVENTANA-70, w = 100, h= 40)
 #boton backtraking
 botonBacktracking = Button(root, text= "Backtracking", command=lambda:botonBT(), bg="LightYellow2", fg="Black")
 botonBacktracking.place(x=COLUMNAS*50+50, y=ALTOVENTANA-70, w=100, h=40)
+##
+mensajeEntry = Entry(root)
+mensajeEntry.place(x=(ANCHOVENTANA/3)-40, y=55, w=300,h=35)
 root.mainloop()
