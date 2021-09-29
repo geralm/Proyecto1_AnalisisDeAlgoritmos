@@ -10,23 +10,37 @@ import fuerzaBruta
 import dominoes
 import backtracking
 from tkinter import *
+import random 
+
 
 #----------------------------definicion de variables globables----------------------------
-CANTIDAD_FICHAS = 4
+CANTIDAD_FICHAS =7
 FILAS = CANTIDAD_FICHAS+1
 COLUMNAS = CANTIDAD_FICHAS+2
-ANCHOVENTANA =FILAS *100
-ALTOVENTANA =((COLUMNAS//2)*100)+50
+ANCHOVENTANA =FILAS *100 +100
+ALTOVENTANA =((COLUMNAS//2)*100)+50+200
+
 #------------------------------------------definicion de funciones----------------------
+
 def hacerEspejo():
     mirror=[] #matriz espejo
-    for i in range(COLUMNAS):
-        vacio=[] #fila o columna vacía
-        for j in range(FILAS):
-            vacio.append(True) #agrega el valor siempre True
-        mirror.append(vacio) #agrega
+    for i in range(COLUMNAS*FILAS):
+        mirror.append(-1) #agrega
     return mirror
-def pintarCuadros(cuadricula, resultados):
+def revisarEspejo(espejo):
+    """
+    Retorna verdadero si el espejo aún tiene campos disponibles
+    """
+    for i in espejo:
+        if i==-1:
+            return True
+    return False
+def reset(cuadricula):
+    for i in cuadricula:
+        i.configure(bg="white")
+        i.delete (0, 11 )
+    return True
+def pintarCuadros(cuadricula, resultados, tablero):
     """
     Funcion que resultados y me los acomodará en el cuadro los valores de los resultados
     Input: array de cuadrícula, y array de resultados
@@ -37,40 +51,47 @@ def pintarCuadros(cuadricula, resultados):
     cuadricula[pfilas][pcolumnas].configure(background="SpringGreen2")
     cuadricula[pfilas][pcolumnas+1].configure(background="sky blue")  
     """
+    global root
+    reset(cuadricula)
     espejo = hacerEspejo() #el espejo es para tener un control cuando puede pintarse un recuadro y cuando no
- 
-    indiceResultados = 0
-    posfila=0 
-    for i in espejo:
-        posCol = 0
-        for j in i:
-            if j == True: #si es true significa que es una casilla en blanco
-                if resultados[indiceResultados]==0:
-                    try:
-                        if espejo[posfila][posCol] and espejo[posfila+1][posCol]:
-                            cuadricula[posfila][posCol].configure(background="SpringGreen2")
-                            cuadricula[posfila+1][posCol].configure(background="SpringGreen2")
-                            posCol+=2
+    indiceResultados= 0 
+   
+    while revisarEspejo(espejo):
+        indiceCuadro=0
+        if indiceResultados >= FILAS*(COLUMNAS/2):
+            return
+        while espejo[indiceCuadro]!=-1:
+            indiceCuadro+=1
+        if resultados[indiceResultados]==0: #horizontal
 
-                            espejo[posfila][posCol] = False
-                            espejo[posfila+1][posCol] = False
-                            indiceResultados+=1 #aumenta para determinar el siguiente resultado
-                        else: 
-                            print("Error al pintar los cuadros verdes ")
-                    except:
-                        break
-                else: 
-                    if espejo[posfila][posCol] and espejo[posfila][posCol+1]:
-                        cuadricula[posfila][posCol].configure(background="sky blue")
-                        cuadricula[posfila][posCol+1].configure(background="sky blue") 
-                        posCol+=1
-                        espejo[posfila][posCol] = False
-                        espejo[posfila][posCol+1] = False
-                        indiceResultados+=1 #aumenta para determinar el siguiente resultado   
-                    else: 
-                        print("Error al pintar los cuadros celestes")
-        posfila+=1
+            espejo[indiceCuadro]=0 
+            espejo[indiceCuadro+1]=0
+        else: 
+            espejo[indiceCuadro+COLUMNAS]=1
+            espejo[indiceCuadro]=1 
+        indiceResultados+=1
+    indice=0
+    for i in tablero:
+        for j in i: 
+            cuadricula[indice].configure(font=("Arial",14))
+            cuadricula[indice].insert(10,"   ")
+            cuadricula[indice].insert(10,j)
+            
+            indice+=1
+    i = 0       
+    while i<len(espejo): 
+        if espejo[i]==0:
+            cuadricula[i].configure(background="SpringGreen2")
+        else:
+            cuadricula[i].configure(background="sky blue")
+        i+=1
+        root.after(100)
+        root.update()
+
+    
+          
     return True
+    
 def hacerCuadricula(root):
     """
     Funcion que me realizará la cuadrícula dependientemente de las fichas que me acomodará 
@@ -78,39 +99,56 @@ def hacerCuadricula(root):
     Output: la cuadrícula en forma de arreglo
     """
     cuadricula = []
-    for i in range(COLUMNAS):
-        col = [] #columnas cuadrícula
-        for j in range(FILAS):
+    
+    for i in range(2,FILAS+2):
+       
+        for j in range(3,COLUMNAS+3):
             recuadro = Entry(root) # aqui va un text variable
-            recuadro.place(x = i*50, y = j*50, w=50, h = 50)
-            col.append(recuadro)
-        cuadricula.append(col)
+            recuadro.place(x = j*50, y = i*50, w=50, h = 50)
+            cuadricula.append(recuadro)
     return cuadricula
 def botonFuerzaB():
-    """
-    """
     global board
     global solucion
     board = dominoes.create_puzzle(CANTIDAD_FICHAS)
+    print(board)
     solucion=fuerzaBruta.fuerza_bruta(board)
     print(solucion)
-    print(len(solucion))
-    mensaje = pintarCuadros(cuadricula, [0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0])
+    
+    mensaje = pintarCuadros(cuadricula, solucion, board)
     return 
+def botonBT():
+    global board
+    global solucion
+    board=dominoes.create_puzzle(CANTIDAD_FICHAS)
+    solucion= backtracking.backtracking(board)
+    mensaje=pintarCuadros(cuadricula, solucion)
+    return
 #--------------------------------------Código principal---------------------------------------------
 global root
 board = []
 solucion = []
 root = Tk()
 root.title("Análisis de algoritmos-Búsqueda de fuerza bruta y Backtraking")
+root.configure(background="Purple4")
 x_ventana = root.winfo_screenwidth() // 2 - ANCHOVENTANA // 2
 y_ventana = root.winfo_screenheight() // 2 - ALTOVENTANA // 2
 posicion = str(ANCHOVENTANA) + "x" + str(ALTOVENTANA) + "+" + str(x_ventana) + "+" + str(y_ventana)
 root.geometry(posicion)
 root.resizable(0,0)
+#titulos
+labeltitulo=Label(root, text="Dominoes",bg="purple1", fg="white")
+labeltitulo.configure(font=("verdana",24))
+labeltitulo.place(x=(ANCHOVENTANA/3)+10, y=10)
+#botonsalir
 botonSalir  = Button(root, text = "Salir", command =root.quit, bg = "red", fg="white", font="Arial")
-botonSalir.place(x = ANCHOVENTANA-100, y = ALTOVENTANA-40,  w = 75,h = 30)
+botonSalir.place(x = ANCHOVENTANA-100, y = ALTOVENTANA-70,  w = 75,h = 40)
+#cuadricula
 cuadricula= hacerCuadricula(root)
-botonFuerzaBruta = Button(root, text="FB",command=lambda:botonFuerzaB(), bg="Yellow", fg="black")
-botonFuerzaBruta.place(x = ANCHOVENTANA-100, y= ALTOVENTANA-100, w = 75, h= 30)
+#boton fuerza bruta
+botonFuerzaBruta = Button(root, text="Fuerza Bruta",command=lambda:botonFuerzaB(), bg="wheat2", fg="black")
+botonFuerzaBruta.place(x = 3*50, y= ALTOVENTANA-70, w = 100, h= 40)
+#boton backtraking
+botonBacktracking = Button(root, text= "Backtracking", command=lambda:botonBT(), bg="LightYellow2", fg="Black")
+botonBacktracking.place(x=COLUMNAS*50+50, y=ALTOVENTANA-70, w=100, h=40)
 root.mainloop()
